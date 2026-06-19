@@ -1,0 +1,32 @@
+# Python/Django .gitignore
+# Byte‑compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+env/
+venv/
+ENV/
+
+# IDE / editor folders
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Django stuff
+*.log
+local_settings.py
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static_root/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Packages
+node_modules/
