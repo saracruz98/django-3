@@ -132,3 +132,23 @@ class Session(models.Model):
 
     def __str__(self):
         return f"{self.entrenador.username} → {self.cliente.username} @ {self.fecha_hora:%Y-%m-%d %H:%M}"
+
+
+class Observation(models.Model):
+    """Observación escrita por un entrenador durante una sesión.
+
+    - ``session``: sesión a la que pertenece la observación.
+    - ``texto``: contenido de la observación.
+    - ``creado_por``: usuario que la escribe (el entrenador).
+    - ``fecha``: marca temporal automática.
+    """
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="observaciones")
+    texto = models.TextField()
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="observaciones_creadas")
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"Obs {self.id} de {self.creado_por.username} @ {self.fecha:%Y-%m-%d %H:%M}"

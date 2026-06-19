@@ -10,6 +10,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from accounts.forms import SignUpForm  # Formulario personalizado para el registro
 
+# Importar modelos de workout para usar en dashboards
+from workout.models import Routine, Exercise, Session, Observation
+from workout.forms import ObservationForm
+
 def home(request):
     """
     Renderiza la página principal de inicio (home.html).
@@ -99,19 +103,78 @@ def register_user(request):
 def client_dashboard(request):
     """Vista del cliente (rol 'customer').
     Solo los usuarios con rol 'customer' pueden acceder.
+    Muestra sus rutinas activas y ejercicios disponibles.
     """
     if getattr(request.user, 'rol', None) != 'customer':
         messages.error(request, "Acceso no autorizado")
         return redirect('home')
-    return render(request, 'client.html', {'user': request.user})
+    # Obtener rutinas del cliente
+    mis_rutinas = Routine.objects.filter(usuario=request.user, activo=True)
+    # Lista de ejercicios disponibles (solo lectura)
+    ejercicios = Exercise.objects.all()
+    context = {
+        'user': request.user,
+        'rutinas': mis_rutinas,
+        'ejercicios': ejercicios,
+    }
+    return render(request, 'client_dashboard.html', context)
 
 @login_required
 def staff_dashboard(request):
     """Vista del personal (rol 'staff').
     Solo los usuarios con rol 'staff' pueden acceder.
+    Permite gestionar usuarios y rutinas de cualquier cliente.
     """
     if getattr(request.user, 'rol', None) != 'staff':
         messages.error(request, "Acceso no autorizado")
         return redirect('home')
-    return render(request, 'staff.html', {'user': request.user})
+    # Todas las rutinas y usuarios para gestión
+    todas_rutinas = Routine.objects.all()
+    todos_usuarios = request.user.__class__.objects.all()
+    context = {
+        'user': request.user,
+        'rutinas': todas_rutinas,
+        'usuarios': todos_usuarios,
+    }
+    return render(request, 'staff_dashboard.html', context)
 
+
+@login_required
+def create_observation(request, session_id):
+    """Crear una observación para una sesión (solo staff)."""
+    from django.shortcuts import get_object_or_404
+    if getattr(request.user, 'rol', None) != 'staff':
+        messages.error(request, "Acceso no autorizado")
+        return redirect('home')
+    session = get_object_or_404(Session, id=session_id, entrenador=request.user)
+    if request.method == 'POST':
+        form = ObservationForm(request.POST)
+        if form.is_valid():
+            obs = form.save(commit=False)
+            obs.session = session
+            obs.creado_por = request.user
+            obs.save()
+            messages.success(request, "Observación guardada")
+            return redirect('staff_dashboard')
+    else:
+        form = ObservationForm()
+    return render(request, 'create_observation.html', {'form': form, 'session': session})
+@login_required
+def admin_dashboard(request):
+    """Vista de administrador (superuser).
+    Solo superusuarios pueden acceder.
+    Ofrece estadísticas globales y control total.
+    """
+    if not request.user.is_superuser:
+        messages.error(request, "Acceso no autorizado")
+        return redirect('home')
+    total_usuarios = request.user.__class__.objects.count()
+    total_rutinas = Routine.objects.count()
+    total_ejercicios = Exercise.objects.count()
+    context = {
+        'user': request.user,
+        'total_usuarios': total_usuarios,
+        'total_rutinas': total_rutinas,
+        'total_ejercicios': total_ejercicios,
+    }
+    return render(request, 'admin_dashboard.html', context)
