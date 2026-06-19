@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 
+
 class SignUpForm(UserCreationForm):
     """Formulario de registro de usuarios usando el modelo CustomUser."""
 
@@ -14,3 +15,17 @@ class SignUpForm(UserCreationForm):
             "telefono": forms.TextInput(attrs={"class": "form-control"}),
             "rol": forms.Select(attrs={"class": "form-control"}),
         }
+        labels = {
+            "username": "Usuario",
+            "email": "Correo electrónico",
+            "telefono": "Teléfono",
+            "rol": "Rol",
+        }
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        if not telefono.isdigit():
+            raise forms.ValidationError('El teléfono debe contener solo números.')
+        if len(telefono) < 7:
+            raise forms.ValidationError('El teléfono es demasiado corto.')
+        return telefono
