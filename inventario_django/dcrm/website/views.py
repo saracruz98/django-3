@@ -1,12 +1,13 @@
 """
 Módulo de vistas para la aplicación website.
 Contiene la lógica para la página principal, el registro de usuarios,
-y la autenticación (inicio y cierre de sesión).
+la autenticación (inicio y cierre de sesión) y el dashboard del cliente.
 """
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from accounts.forms import SignUpForm  # Formulario personalizado para el registro
 
 def home(request):
@@ -93,3 +94,24 @@ def register_user(request):
         # Si no es POST, mostrar un formulario vacío
         form = SignUpForm()
         return render(request, 'register.html', {'form': form})
+
+@login_required
+def client_dashboard(request):
+    """Vista del cliente (rol 'customer').
+    Solo los usuarios con rol 'customer' pueden acceder.
+    """
+    if getattr(request.user, 'rol', None) != 'customer':
+        messages.error(request, "Acceso no autorizado")
+        return redirect('home')
+    return render(request, 'client.html', {'user': request.user})
+
+@login_required
+def staff_dashboard(request):
+    """Vista del personal (rol 'staff').
+    Solo los usuarios con rol 'staff' pueden acceder.
+    """
+    if getattr(request.user, 'rol', None) != 'staff':
+        messages.error(request, "Acceso no autorizado")
+        return redirect('home')
+    return render(request, 'staff.html', {'user': request.user})
+
