@@ -18,5 +18,5 @@ urlpatterns = [
     # Ruta para el registro de nuevos usuarios
     path('register/', views.register_user, name='register'),
     path('staff/', views.staff_dashboard, name='staff'),
-    path('client/', views.client_dashboard, name='client'),
+    path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
 ]

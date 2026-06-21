@@ -1,0 +1,73 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Dashboard Cliente{% endblock %}
+
+{% block dashboard_content %}
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Rutina actual</h5>
+        <p class="card-text">{{ rutina_actual.nombre|default:"Sin rutina" }}</p>
+        {% if rutina_actual %}
+          <a href="{% url 'view_routine' rutina_actual.id %}" class="btn btn-plum btn-sm">Ver rutina</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Ejercicios del día</h5>
+        {% if ejercicios_hoy %}
+          <ul class="list-group list-group-flush">
+            {% for ejercicio in ejercicios_hoy %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ ejercicio.nombre }}
+                <a href="{% url 'mark_exercise_done' ejercicio.id %}" class="btn btn-success btn-sm">Marcar como completado</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">No hay ejercicios programados para hoy.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Progreso físico</h5>
+        {% if progreso_fisico %}
+          <p>Peso: {{ progreso_fisico.peso }} kg</p>
+          <p>Altura: {{ progreso_fisico.altura }} cm</p>
+          <p>Fecha: {{ progreso_fisico.fecha|date:"d M Y" }}</p>
+        {% else %}
+          <p class="text-muted">Aún no has registrado tu progreso.</p>
+        {% endif %}
+        <a href="{% url 'add_progress' %}" class="btn btn-plum btn-sm">Registrar peso y medidas</a>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Historial de entrenamientos</h5>
+        {% if historial_entrenamientos %}
+          <ul class="list-group list-group-flush">
+            {% for sesion in historial_entrenamientos %}
+              <li class="list-group-item">
+                {{ sesion.fecha|date:"d M Y" }} – {{ sesion.rutina.nombre }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">No hay historial.</p>
+        {% endif %}
+        <a href="{% url 'history' %}" class="btn btn-plum btn-sm">Ver más</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

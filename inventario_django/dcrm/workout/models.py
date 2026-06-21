@@ -152,3 +152,38 @@ class Observation(models.Model):
 
     def __str__(self):
         return f"Obs {self.id} de {self.creado_por.username} @ {self.fecha:%Y-%m-%d %H:%M}"
+
+class Progress(models.Model):
+    """Progreso físico del cliente (peso, altura)."""
+    cliente = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        limit_choices_to={"rol": "customer"},
+        related_name="progresos",
+    )
+    peso = models.DecimalField(max_digits=5, decimal_places=2, help_text="Peso en kg")
+    altura = models.DecimalField(max_digits=4, decimal_places=1, help_text="Altura en cm")
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"{self.cliente.username} – {self.fecha:%Y-%m-%d}"
+
+class Recommendation(models.Model):
+    """Recomendaciones personalizadas para el cliente."""
+    cliente = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        limit_choices_to={"rol": "customer"},
+        related_name="recomendaciones",
+    )
+    texto = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"Recomendación {self.id} para {self.cliente.username}"

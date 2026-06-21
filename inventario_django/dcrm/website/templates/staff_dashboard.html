@@ -1,0 +1,48 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Dashboard Personal{% endblock %}
+
+{% block dashboard_content %}
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Clientes asignados</h5>
+        <p class="card-text display-4">{{ clientes_asignados|length }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Rutinas creadas</h5>
+        <p class="card-text display-4">{{ rutinas_creadas }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Sesiones hoy</h5>
+        <p class="card-text display-4">{{ sesiones_hoy }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Clientes sin entrenar</h5>
+        <p class="card-text display-4">{{ clientes_sin_entrenar|length }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4 d-flex justify-content-around">
+  <a href="{% url 'create_routine' %}" class="btn btn-plum">Crear rutina de ejercicios</a>
+  <a href="{% url 'assign_routine' %}" class="btn btn-plum">Asignar rutina a cliente</a>
+  <a href="{% url 'create_observation' %}" class="btn btn-plum">Registrar observación</a>
+  <a href="{% url 'add_progress' %}" class="btn btn-plum">Medir progreso físico</a>
+</div>
+{% endblock %}
