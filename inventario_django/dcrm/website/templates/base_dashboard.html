@@ -1,12 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-{% endblock %}
-
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container mt-4">
-  {% block dashboard_content %}{% endblock %}
+    {% block dashboard_body %}{% endblock %}
 </div>
 {% endblock %}

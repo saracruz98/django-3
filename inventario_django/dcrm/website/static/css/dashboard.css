@@ -1,45 +1,147 @@
-/* Dashboard CSS - Plum theme (RGB 221,160,221) - Light mode */
+/* Dashboard theme – Plum (RGB 221,160,221) – light mode */
 :root {
-    --color-plum: rgb(221, 160, 221);
-    --color-plum-dark: rgb(180, 120, 180);
-    --color-bg: #ffffff;
-    --color-text: #212529;
-    --card-bg: #f8f9fa;
-    --card-border: rgba(0,0,0,.125);
-    --card-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    --plum: rgb(221, 160, 221);
+    --plum-light: rgb(236, 209, 236);
+    --text-primary: #212529;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    
+    --primary: #4f46e5;
+    --primary-soft: rgba(79, 70, 229, 0.1);
+    --success: #10b981;
+    --success-soft: rgba(16, 185, 129, 0.1);
+    --warning: #f59e0b;
+    --warning-soft: rgba(245, 158, 11, 0.1);
+    --danger: #ef4444;
+    --danger-soft: rgba(239, 68, 68, 0.1);
 }
 
 body {
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
 }
 
-.card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: .5rem;
-    box-shadow: var(--card-shadow);
-    transition: transform .2s, box-shadow .2s;
+/* Utils Colors */
+.bg-primary-soft { background-color: var(--primary-soft); }
+.bg-success-soft { background-color: var(--success-soft); }
+.bg-warning-soft { background-color: var(--warning-soft); }
+.bg-danger-soft { background-color: var(--danger-soft); }
+
+.text-primary { color: var(--primary) !important; }
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-danger { color: var(--danger) !important; }
+
+/* Panels */
+.premium-panel {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+.premium-panel:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
 
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
-    border-color: var(--color-plum);
+/* Stat Cards */
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s;
+}
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
 }
 
-.card-title {
-    color: var(--color-plum-dark);
+/* Custom Cards */
+.exercise-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+}
+.session-card {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(79, 70, 229, 0.1) 100%);
+    border: 1px solid rgba(79, 70, 229, 0.2);
+    border-radius: 12px;
+    padding: 1.25rem;
 }
 
-.btn-plum {
-    background-color: var(--color-plum);
-    color: #fff;
-    border: none;
+/* Achievements */
+.achievement-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+    transition: opacity 0.3s;
+}
+.achievement-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--warning-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
 }
 
-.btn-plum:hover {
-    background-color: var(--color-plum-dark);
-    color: #fff;
+/* Recommendations */
+.recommendation-bubble {
+    background: var(--primary-soft);
+    border-left: 3px solid var(--primary);
+    padding: 1rem;
+    border-radius: 0 10px 10px 10px;
+    font-size: 0.9rem;
+    color: #334155;
+    position: relative;
+}
+
+/* Badge active status */
+.badge-active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+/* Progress bar overwrite */
+.progress {
+    background-color: #e2e8f0;
+    border-radius: 10px;
+}
+.progress-bar {
+    border-radius: 10px;
 }

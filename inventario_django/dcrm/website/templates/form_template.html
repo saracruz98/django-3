@@ -1,0 +1,13 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_body %}
+<h2 class="mb-4">{{ title }}</h2>
+<form method="post" class="card p-4" style="max-width: 600px;">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn-action mt-3">Guardar</button>
+  <a href="{{ cancel_url }}" class="btn-action mt-3" style="background:#aaa;">Cancelar</a>
+</form>
+{% endblock %}

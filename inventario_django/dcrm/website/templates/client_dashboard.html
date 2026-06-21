@@ -1,73 +1,351 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
+{% block title %}Cliente – Dashboard{% endblock %}
 
-{% block title %}Dashboard Cliente{% endblock %}
-
-{% block dashboard_content %}
-<div class="row row-cols-1 row-cols-md-2 g-4">
-  <div class="col">
-    <div class="card h-100 text-center">
-      <div class="card-body">
-        <h5 class="card-title">Rutina actual</h5>
-        <p class="card-text">{{ rutina_actual.nombre|default:"Sin rutina" }}</p>
-        {% if rutina_actual %}
-          <a href="{% url 'view_routine' rutina_actual.id %}" class="btn btn-plum btn-sm">Ver rutina</a>
-        {% endif %}
-      </div>
+{% block dashboard_body %}
+<!-- Encabezado del Dashboard -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold mb-0">Mi Panel de Entrenamiento</h1>
+    <div>
+        <span class="badge badge-active fs-6 px-3 py-2">Membresía Activa</span>
     </div>
-  </div>
-  <div class="col">
-    <div class="card h-100 text-center">
-      <div class="card-body">
-        <h5 class="card-title">Ejercicios del día</h5>
-        {% if ejercicios_hoy %}
-          <ul class="list-group list-group-flush">
-            {% for ejercicio in ejercicios_hoy %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ ejercicio.nombre }}
-                <a href="{% url 'mark_exercise_done' ejercicio.id %}" class="btn btn-success btn-sm">Marcar como completado</a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="text-muted">No hay ejercicios programados para hoy.</p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="card h-100 text-center">
-      <div class="card-body">
-        <h5 class="card-title">Progreso físico</h5>
-        {% if progreso_fisico %}
-          <p>Peso: {{ progreso_fisico.peso }} kg</p>
-          <p>Altura: {{ progreso_fisico.altura }} cm</p>
-          <p>Fecha: {{ progreso_fisico.fecha|date:"d M Y" }}</p>
-        {% else %}
-          <p class="text-muted">Aún no has registrado tu progreso.</p>
-        {% endif %}
-        <a href="{% url 'add_progress' %}" class="btn btn-plum btn-sm">Registrar peso y medidas</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="card h-100 text-center">
-      <div class="card-body">
-        <h5 class="card-title">Historial de entrenamientos</h5>
-        {% if historial_entrenamientos %}
-          <ul class="list-group list-group-flush">
-            {% for sesion in historial_entrenamientos %}
-              <li class="list-group-item">
-                {{ sesion.fecha|date:"d M Y" }} – {{ sesion.rutina.nombre }}
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="text-muted">No hay historial.</p>
-        {% endif %}
-        <a href="{% url 'history' %}" class="btn btn-plum btn-sm">Ver más</a>
-      </div>
-    </div>
-  </div>
 </div>
+
+<div class="row g-4">
+    
+    <!-- COLUMNA IZQUIERDA (Principal) -->
+    <div class="col-lg-8">
+        
+        <!-- ESTADÍSTICAS RÁPIDAS -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary-soft text-primary">🏃</div>
+                    <div class="stat-label">Entrenos Mes</div>
+                    <div class="stat-value">{{ entrenos_mes }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning-soft text-warning">🔥</div>
+                    <div class="stat-label">Racha Actual</div>
+                    <div class="stat-value">{{ racha_actual }} días</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success-soft text-success">🎯</div>
+                    <div class="stat-label">Objetivo Mensual</div>
+                    <div class="stat-value">{{ objetivo_percent }}%</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-danger-soft text-danger">⚡</div>
+                    <div class="stat-label">Calorías Estimadas</div>
+                    <div class="stat-value">{{ calorias_estimadas }} kcal</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RUTINA DEL DÍA MÁS DETALLADA -->
+        <div class="card premium-panel mb-4">
+            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">💪 Rutina del Día</h5>
+                {% if rutina_hoy %}
+                    <span class="badge bg-primary">{{ rutina_hoy.nombre }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if ejercicios_hoy %}
+                    <div class="row g-3">
+                        {% for re in ejercicios_hoy %}
+                            <div class="col-md-6">
+                                <div class="exercise-card">
+                                    <h6 class="fw-bold mb-1">{{ re.ejercicio.nombre }}</h6>
+                                    <div class="text-muted small mb-2">{{ re.repeticiones }} repeticiones</div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-primary" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center p-4">
+                        <p class="text-muted mb-0"><em>No hay ejercicios programados para hoy.</em></p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- PRÓXIMA SESIÓN & ESTADO FÍSICO -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card premium-panel h-100">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="fw-bold mb-0">📅 Próxima Sesión</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if proxima_sesion %}
+                            <div class="session-card">
+                                <div class="fs-4 mb-2">🗓️ {{ proxima_sesion.fecha_hora|date:"d/m/Y" }}</div>
+                                <div class="fs-5 mb-3">⏰ {{ proxima_sesion.fecha_hora|date:"h:i A" }}</div>
+                                <p class="mb-1"><strong>Entrenador:</strong> {{ proxima_sesion.entrenador.get_full_name|default:proxima_sesion.entrenador.username }}</p>
+                                <p class="mb-0"><strong>Rutina:</strong> {{ proxima_sesion.rutina.nombre }}</p>
+                            </div>
+                        <a href="#" class="btn btn-outline-primary w-100 mt-3">Ver detalles</a>
+                        {% else %}
+                            <div class="text-center p-4">
+                                <p class="text-muted">No tienes sesiones programadas próximamente.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card premium-panel h-100">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="fw-bold mb-0">📈 Progreso Físico</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if progreso_fisico %}
+                            <div class="d-flex justify-content-between mb-3">
+                                <div>
+                                    <small class="text-muted d-block">Peso Actual</small>
+                                    <span class="fs-4 fw-bold">{{ progreso_fisico.peso }} kg</span>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">IMC</small>
+                                    <span class="fs-4 fw-bold">{{ bmi_actual|default:"--" }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <small class="fw-bold">Objetivo: Ganar masa muscular</small>
+                                    <small>{{ progreso_masa_percent }}%</small>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: {{ progreso_masa_percent }}%;"></div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Última actualización: {{ progreso_fisico.fecha|date:"d/m/Y" }}</small>
+                        {% else %}
+                            <p class="text-muted">No has registrado tu progreso físico.</p>
+                        {% endif %}
+                        <a href="{% url 'add_progress' %}" class="btn btn-primary w-100 mt-3">Registrar peso y medidas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICAS DE PROGRESO -->
+        <div class="card premium-panel mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="fw-bold mb-0">📊 Evolución del Progreso</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-peso" type="button">Evolución de Peso</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-masa" type="button">Masa Muscular</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-asistencia" type="button">Asistencia Semanal</button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="pills-peso">
+                        <canvas id="chartPeso" height="100"></canvas>
+                    </div>
+                    <div class="tab-pane fade" id="pills-masa">
+                        <canvas id="chartMasa" height="100"></canvas>
+                    </div>
+                    <div class="tab-pane fade" id="pills-asistencia">
+                        <canvas id="chartAsistencia" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- HISTORIAL DE ENTRENAMIENTOS -->
+        <div class="card premium-panel">
+            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">🕒 Historial de Entrenamientos</h5>
+                <a href="{% url 'history' %}" class="btn btn-sm btn-outline-primary">Ver todos</a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for h in historial_entrenamientos %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            <div class="fw-bold">{{ h.rutina.nombre }}</div>
+                            <small class="text-muted">{{ h.fecha_hora|date:"d M Y - H:i" }}</small>
+                        </div>
+                        <span class="badge bg-success rounded-pill">Completado</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item p-3 text-center text-muted">No hay historial disponible.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- COLUMNA DERECHA (Sidebar) -->
+    <div class="col-lg-4">
+        
+        <!-- NOTIFICACIONES -->
+        <div class="card premium-panel mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="fw-bold mb-0">🔔 Notificaciones</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for n in notificaciones %}
+                    <li class="list-group-item d-flex align-items-center p-3">
+                        <span class="me-3 fs-4">{{ n.icon }}</span>
+                        <span>{{ n.texto }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item p-3 text-muted">No tienes notificaciones nuevas.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- SISTEMA DE LOGROS -->
+        <div class="card premium-panel mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="fw-bold mb-0">🏆 Mis Logros</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-column gap-3">
+                    {% for logro in logros %}
+                        <div class="achievement-card {% if not logro.logrado %}opacity-50{% endif %}">
+                            <div class="achievement-icon">{{ logro.icon }}</div>
+                            <div>
+                                <h6 class="fw-bold mb-0">{{ logro.titulo }}</h6>
+                                <small class="text-muted">{{ logro.desc }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- RECOMENDACIONES DEL ENTRENADOR -->
+        <div class="card premium-panel">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="fw-bold mb-0">💡 Recomendaciones</h5>
+            </div>
+            <div class="card-body">
+                {% if observaciones or recomendaciones %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for obs in observaciones %}
+                            <div class="recommendation-bubble">
+                                <div class="small fw-bold text-primary mb-1">💬 Observación ({{ obs.fecha|date:"d/m/Y" }})</div>
+                                "{{ obs.texto }}"
+                            </div>
+                        {% endfor %}
+                        {% for rec in recomendaciones %}
+                            <div class="recommendation-bubble bg-warning-soft">
+                                <div class="small fw-bold text-warning mb-1">⭐ Tip ({{ rec.fecha|date:"d/m/Y" }})</div>
+                                "{{ rec.texto }}"
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No hay recomendaciones recientes.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Scripts para Chart.js -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Datos proporcionados desde la vista (ya son JSON strings válidos)
+        const fechas = {{ chart_fechas|safe }};
+        const pesos = {{ chart_pesos|safe }};
+        const masa = {{ chart_masa|safe }};
+        const semLabels = {{ chart_semanas_labels|safe }};
+        const semData = {{ chart_semanas_data|safe }};
+
+        const chartOptions = {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: false } }
+        };
+
+        // Gráfica Evolución de Peso
+        if(document.getElementById('chartPeso') && pesos.length > 0) {
+            new Chart(document.getElementById('chartPeso'), {
+                type: 'line',
+                data: {
+                    labels: fechas,
+                    datasets: [{
+                        label: 'Peso (kg)',
+                        data: pesos,
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Gráfica Masa Muscular
+        if(document.getElementById('chartMasa') && masa.length > 0) {
+            new Chart(document.getElementById('chartMasa'), {
+                type: 'line',
+                data: {
+                    labels: fechas,
+                    datasets: [{
+                        label: 'Masa Muscular (kg)',
+                        data: masa,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Gráfica Asistencia Semanal
+        if(document.getElementById('chartAsistencia')) {
+            new Chart(document.getElementById('chartAsistencia'), {
+                type: 'bar',
+                data: {
+                    labels: semLabels,
+                    datasets: [{
+                        label: 'Entrenamientos',
+                        data: semData,
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+    });
+</script>
+
 {% endblock %}
