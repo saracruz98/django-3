@@ -26,10 +26,10 @@ urlpatterns = [
 
     path('routine/create/', views.create_routine, name='create_routine'),
     path('routine/assign/', views.assign_routine, name='assign_routine'),
-    path('admin/', views.admin_dashboard, name='admin_dashboard'),
-    path('admin/create_user/', views.admin_create_user, name='admin_create_user'),
-    path('admin/assign_trainer/', views.admin_assign_trainer, name='admin_assign_trainer'),
-    path('admin/manage_exercises/', views.admin_manage_exercises, name='admin_manage_exercises'),
+    path('panel-admin/', views.admin_dashboard, name='admin_dashboard'),
+    path('panel-admin/create_user/', views.admin_create_user, name='admin_create_user'),
+    path('panel-admin/assign_trainer/', views.admin_assign_trainer, name='admin_assign_trainer'),
+    path('panel-admin/manage_exercises/', views.admin_manage_exercises, name='admin_manage_exercises'),
     # CRUD for Exercise (staff only)
     path('exercises/', views.exercise_list, name='exercise_list'),
     path('exercises/create/', views.exercise_create, name='exercise_create'),
@@ -46,7 +46,7 @@ urlpatterns = [
     # CRUD for Session (staff)
     path('sessions/', views.session_list, name='session_list'),
     path('sessions/<int:pk>/edit/', views.session_edit, name='session_edit'),
-    path('admin/manage_plans/', views.admin_manage_plans, name='admin_manage_plans'),
+    path('panel-admin/manage_plans/', views.admin_manage_plans, name='admin_manage_plans'),
     path('observation/create/', views.create_observation, name='create_observation'),
     path('observation/create/<int:session_id>/', views.create_observation, name='create_observation'),
     path('history/', views.history, name='history'),

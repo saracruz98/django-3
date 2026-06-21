@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from accounts.forms import SignUpForm  # Formulario personalizado para el registro
 
 # Importar modelos de workout para usar en dashboards
@@ -23,8 +24,8 @@ def home(request):
         if role == 'customer':
             return redirect('client')
         elif role == 'staff':
-            return redirect('staff')
-        elif request.user.is_superuser:
+            return redirect('staff_dashboard')
+        elif role == 'admin' or request.user.is_superuser:
             return redirect('admin_dashboard')
     return render(request, 'home.html', {})
 
@@ -55,8 +56,8 @@ def login_user(request):
             if role == 'customer':
                 return redirect('client')
             elif role == 'staff':
-                return redirect('staff')
-            elif user.is_superuser:
+                return redirect('staff_dashboard')
+            elif role == 'admin' or user.is_superuser:
                 return redirect('admin_dashboard')
             else:
                 return redirect('home')
