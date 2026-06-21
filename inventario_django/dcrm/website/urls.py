@@ -13,6 +13,7 @@ urlpatterns = [
     # Ruta para iniciar sesión
     path('login/', views.login_user, name='login'),
     path('client/', views.client_dashboard, name='client'),
+    path('staff/', views.staff_dashboard, name='staff_dashboard'),
     path('progress/add/', views.add_progress, name='add_progress'),
 
 

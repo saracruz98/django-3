@@ -313,22 +313,49 @@ def client_dashboard(request):
 @login_required
 def staff_dashboard(request):
     """Vista del personal (rol 'staff').
-    Solo los usuarios con rol 'staff' pueden acceder.
-    Permite gestionar usuarios y rutinas de cualquier cliente.
+    Solo puede administrar clientes asignados.
     """
     if getattr(request.user, 'rol', None) != 'staff':
         messages.error(request, "Acceso no autorizado")
         return redirect('home')
-    # Todas las rutinas y usuarios para gestión
-    todas_rutinas = Routine.objects.all()
-    todos_usuarios = request.user.__class__.objects.all()
+    
+    # 1. Clientes asignados al entrenador
+    clientes_asignados = request.user.clientes_asignados.all()
+    
+    # 2. Rutinas creadas por este entrenador (en las cuales él es el 'usuario' creador o están asignadas a sus clientes)
+    # Según los modelos actuales, la rutina tiene un 'usuario' (que originalmente era el cliente). 
+    # Para obtener rutinas creadas / asignadas a sus clientes:
+    rutinas_clientes = Routine.objects.filter(usuario__in=clientes_asignados, activo=True)
+    
+    # 3. Sesiones programadas para hoy
+    from django.utils import timezone
+    today = timezone.now().date()
+    sesiones_hoy = Session.objects.filter(
+        entrenador=request.user,
+        fecha_hora__date=today
+    ).select_related('cliente', 'rutina').order_by('fecha_hora')
+    
+    # 4. Clientes que no han entrenado esta semana
+    # Buscamos clientes que no tengan ninguna sesión 'completada' en los últimos 7 días
+    hace_una_semana = timezone.now() - timezone.timedelta(days=7)
+    clientes_inactivos = []
+    for cliente in clientes_asignados:
+        entrenado = Session.objects.filter(
+            cliente=cliente, 
+            estado='completada', 
+            fecha_hora__gte=hace_una_semana
+        ).exists()
+        if not entrenado:
+            clientes_inactivos.append(cliente)
+
     context = {
         'user': request.user,
-        'rutinas': todas_rutinas,
-        'usuarios': todos_usuarios,
+        'clientes_asignados': clientes_asignados,
+        'rutinas_clientes': rutinas_clientes,
+        'sesiones_hoy': sesiones_hoy,
+        'clientes_inactivos': clientes_inactivos,
     }
     return render(request, 'staff_dashboard.html', context)
-
 
 @login_required
 def create_routine(request):
@@ -593,68 +620,94 @@ def add_progress(request):
     return render(request, 'add_progress.html', {'form': form})
 @login_required
 def admin_dashboard(request):
-    """Vista de administrador (superuser).
-    Solo superusuarios pueden acceder.
-    Ofrece estadísticas globales y control total.
-    """
-    if not request.user.is_superuser:
+    """Vista de administrador (superuser o rol admin)."""
+    if not request.user.is_superuser and getattr(request.user, 'rol', None) != 'admin':
         messages.error(request, "Acceso no autorizado")
         return redirect('home')
-    total_usuarios = request.user.__class__.objects.count()
-    total_rutinas = Routine.objects.count()
-    total_ejercicios = Exercise.objects.count()
+        
+    User = request.user.__class__
+    total_clientes = User.objects.filter(rol='customer').count()
+    total_entrenadores = User.objects.filter(rol='staff').count()
+    total_rutinas = Routine.objects.filter(activo=True).count()
+    total_sesiones = Session.objects.count()
+    
+    entrenadores_lista = User.objects.filter(rol='staff').prefetch_related('clientes_asignados')
+
     context = {
         'user': request.user,
-        'total_usuarios': total_usuarios,
+        'total_clientes': total_clientes,
+        'total_entrenadores': total_entrenadores,
         'total_rutinas': total_rutinas,
-        'total_ejercicios': total_ejercicios,
+        'total_sesiones': total_sesiones,
+        'entrenadores_lista': entrenadores_lista,
     }
+    return render(request, 'admin_dashboard.html', context)
 
 @login_required
 def admin_create_user(request):
-    """Crear usuarios (placeholder)."""
-    if not request.user.is_superuser:
+    """Crear usuarios (staff o customer)."""
+    if not request.user.is_superuser and getattr(request.user, 'rol', None) != 'admin':
         messages.error(request, "Acceso no autorizado")
         return redirect('home')
-    # TODO: implementar formulario de creación de usuarios
-    messages.info(request, "Funcionalidad de crear usuarios aún no implementada.")
-    return redirect('admin_dashboard')
+        
+    if request.method == 'POST':
+        from accounts.forms import SignUpForm
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            nuevo_user = form.save()
+            messages.success(request, f"Usuario {nuevo_user.username} creado exitosamente como {nuevo_user.get_rol_display()}.")
+            return redirect('admin_dashboard')
+    else:
+        from accounts.forms import SignUpForm
+        form = SignUpForm()
+        
+    return render(request, 'form_template.html', {
+        'title': 'Crear Nuevo Usuario',
+        'form': form,
+        'cancel_url': reverse('admin_dashboard'),
+    })
 
 @login_required
 def admin_assign_trainer(request):
-    """Asignar entrenadores a usuarios (placeholder)."""
-    if not request.user.is_superuser:
+    """Asignar entrenadores a usuarios."""
+    if not request.user.is_superuser and getattr(request.user, 'rol', None) != 'admin':
         messages.error(request, "Acceso no autorizado")
         return redirect('home')
-    messages.info(request, "Funcionalidad de asignar entrenadores aún no implementada.")
-    return redirect('admin_dashboard')
+        
+    from accounts.models import CustomUser
+    from django import forms
+
+    class AssignTrainerForm(forms.Form):
+        cliente = forms.ModelChoiceField(queryset=CustomUser.objects.filter(rol='customer'), label="Seleccionar Cliente")
+        entrenador = forms.ModelChoiceField(queryset=CustomUser.objects.filter(rol='staff'), required=False, label="Seleccionar Entrenador (Dejar vacío para remover asignación)")
+    
+    if request.method == 'POST':
+        form = AssignTrainerForm(request.POST)
+        if form.is_valid():
+            cliente = form.cleaned_data['cliente']
+            entrenador = form.cleaned_data['entrenador']
+            cliente.entrenador_asignado = entrenador
+            cliente.save()
+            
+            estado = "asignado" if entrenador else "removido"
+            messages.success(request, f"Entrenador {estado} para el cliente {cliente.username}.")
+            return redirect('admin_dashboard')
+    else:
+        form = AssignTrainerForm()
+        
+    return render(request, 'form_template.html', {
+        'title': 'Asignar Entrenador a Cliente',
+        'form': form,
+        'cancel_url': reverse('admin_dashboard'),
+    })
 
 @login_required
 def admin_manage_exercises(request):
-    """Gestionar ejercicios (placeholder)."""
-    if not request.user.is_superuser:
-        messages.error(request, "Acceso no autorizado")
-        return redirect('home')
-    messages.info(request, "Gestión de ejercicios pendiente.")
-    return redirect('admin_dashboard')
+    return redirect('exercise_list')
 
 @login_required
 def admin_manage_plans(request):
-    """Gestionar planes de entrenamiento (placeholder)."""
-    if not request.user.is_superuser:
-        messages.error(request, "Acceso no autorizado")
-        return redirect('home')
-    messages.info(request, "Gestión de planes pendiente.")
-    return redirect('admin_dashboard')
-
-@login_required
-def admin_reports(request):
-    """Generar reportes (placeholder)."""
-    if not request.user.is_superuser:
-        messages.error(request, "Acceso no autorizado")
-        return redirect('home')
-    messages.info(request, "Generación de reportes pendiente.")
-    return redirect('admin_dashboard')
+    return redirect('routine_list')
 
 
 

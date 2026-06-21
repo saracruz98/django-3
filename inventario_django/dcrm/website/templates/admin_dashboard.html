@@ -1,49 +1,133 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
+{% block title %}Administrador – Dashboard{% endblock %}
 
-{% block title %}Dashboard Administrador{% endblock %}
-
-{% block dashboard_content %}
-<div class="row row-cols-1 row-cols-md-2 g-4">
-  <div class="col">
-    <div class="card h-100 text-center">
-      <div class="card-body">
-        <h5 class="card-title">Total clientes</h5>
-        <p class="card-text display-4">{{ total_usuarios }}</p>
-      </div>
+{% block dashboard_body %}
+<!-- Encabezado -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold mb-0">Panel de Control: Administrador</h1>
+    <div>
+        <span class="badge bg-danger fs-6 px-3 py-2">Acceso Total</span>
     </div>
-  </div>
-  <div class="col">
-    <div class="card h-100 text-center">
-      <div class="card-body">
-        <h5 class="card-title">Total entrenadores</h5>
-        <p class="card-text display-4">{{ total_entrenadores }}</p>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="card h-100 text-center">
-      <div class="card-body">
-        <h5 class="card-title">Rutinas activas</h5>
-        <p class="card-text display-4">{{ total_rutinas }}</p>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="card h-100 text-center">
-      <div class="card-body">
-        <h5 class="card-title">Estadísticas generales</h5>
-        <p class="card-text">{{ general_stats }}</p>
-      </div>
-    </div>
-  </div>
 </div>
 
-<div class="mt-4 d-flex justify-content-around">
-  <a href="{% url 'admin_create_user' %}" class="btn btn-plum">Crear usuarios</a>
-  <a href="{% url 'admin_assign_trainer' %}" class="btn btn-plum">Asignar entrenadores</a>
-  <a href="{% url 'admin_manage_exercises' %}" class="btn btn-plum">Gestionar ejercicios</a>
-  <a href="{% url 'admin_manage_plans' %}" class="btn btn-plum">Gestionar planes</a>
-  <a href="{% url 'admin_reports' %}" class="btn btn-plum">Generar reportes</a>
+<div class="row g-4">
+    
+    <!-- COLUMNA PRINCIPAL -->
+    <div class="col-lg-8">
+        
+        <!-- ESTADÍSTICAS GENERALES -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary-soft text-primary">👥</div>
+                    <div class="stat-label">Total Clientes</div>
+                    <div class="stat-value">{{ total_clientes }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-info-soft text-info">👔</div>
+                    <div class="stat-label">Total Entrenadores</div>
+                    <div class="stat-value">{{ total_entrenadores }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success-soft text-success">📋</div>
+                    <div class="stat-label">Rutinas Activas</div>
+                    <div class="stat-value">{{ total_rutinas }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning-soft text-warning">📅</div>
+                    <div class="stat-label">Total Sesiones</div>
+                    <div class="stat-value">{{ total_sesiones }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTA DE ENTRENADORES -->
+        <div class="card premium-panel">
+            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">👔 Entrenadores y Asignaciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Entrenador</th>
+                                <th>Email</th>
+                                <th>Clientes Asignados</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entrenador in entrenadores_lista %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="achievement-icon bg-info-soft text-info" style="width:32px;height:32px;font-size:1rem;">👔</div>
+                                        <strong>{{ entrenador.get_full_name|default:entrenador.username }}</strong>
+                                    </div>
+                                </td>
+                                <td>{{ entrenador.email|default:"N/A" }}</td>
+                                <td>
+                                    <span class="badge bg-secondary rounded-pill">{{ entrenador.clientes_asignados.count }}</span>
+                                </td>
+                                <td>
+                                    {% if entrenador.is_active %}
+                                    <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">No hay entrenadores registrados.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- COLUMNA DERECHA (Sidebar) -->
+    <div class="col-lg-4">
+        
+        <!-- ACCIONES DE GESTIÓN -->
+        <div class="card premium-panel mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="fw-bold mb-0">⚡ Gestión del Gimnasio</h5>
+            </div>
+            <div class="card-body d-flex flex-column gap-3">
+                <a href="{% url 'admin_create_user' %}" class="btn btn-primary w-100 text-start d-flex justify-content-between align-items-center">
+                    <span>Crear Nuevo Usuario</span>
+                    <span>➕</span>
+                </a>
+                <a href="{% url 'admin_assign_trainer' %}" class="btn btn-primary w-100 text-start d-flex justify-content-between align-items-center">
+                    <span>Asignar Entrenadores</span>
+                    <span>🔗</span>
+                </a>
+                <hr class="my-1">
+                <a href="{% url 'admin_manage_exercises' %}" class="btn btn-outline-primary w-100 text-start d-flex justify-content-between align-items-center">
+                    <span>Gestionar Ejercicios</span>
+                    <span>🏋️</span>
+                </a>
+                <a href="{% url 'admin_manage_plans' %}" class="btn btn-outline-primary w-100 text-start d-flex justify-content-between align-items-center">
+                    <span>Gestionar Rutinas/Planes</span>
+                    <span>📋</span>
+                </a>
+                
+            </div>
+        </div>
+
+    </div>
 </div>
 {% endblock %}
