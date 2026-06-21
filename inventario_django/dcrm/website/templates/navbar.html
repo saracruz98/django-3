@@ -36,18 +36,7 @@
 
         {% else %}
 
-        <!-- Menú no autenticado -->
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'home' %}">Entrar</a>
-        </li>
-        <li class="nav-item ms-lg-2">
-          <a class="btn-premium text-white px-4"
-             href="{% url 'register' %}"
-             style="width:auto; height:38px; display:inline-flex;
-                    align-items:center; border-radius:10px; font-size:.88rem;">
-            Unirse ahora
-          </a>
-        </li>
+        <!-- Menú no autenticado (opciones ocultas por petición) -->
 
         {% endif %}
       </ul>
