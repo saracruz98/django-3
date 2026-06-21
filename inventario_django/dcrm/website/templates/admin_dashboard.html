@@ -1,0 +1,49 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Dashboard Administrador{% endblock %}
+
+{% block dashboard_content %}
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Total clientes</h5>
+        <p class="card-text display-4">{{ total_usuarios }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Total entrenadores</h5>
+        <p class="card-text display-4">{{ total_entrenadores }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Rutinas activas</h5>
+        <p class="card-text display-4">{{ total_rutinas }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100 text-center">
+      <div class="card-body">
+        <h5 class="card-title">Estadísticas generales</h5>
+        <p class="card-text">{{ general_stats }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4 d-flex justify-content-around">
+  <a href="{% url 'admin_create_user' %}" class="btn btn-plum">Crear usuarios</a>
+  <a href="{% url 'admin_assign_trainer' %}" class="btn btn-plum">Asignar entrenadores</a>
+  <a href="{% url 'admin_manage_exercises' %}" class="btn btn-plum">Gestionar ejercicios</a>
+  <a href="{% url 'admin_manage_plans' %}" class="btn btn-plum">Gestionar planes</a>
+  <a href="{% url 'admin_reports' %}" class="btn btn-plum">Generar reportes</a>
+</div>
+{% endblock %}
