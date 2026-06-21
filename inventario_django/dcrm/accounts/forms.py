@@ -21,6 +21,13 @@ class SignUpForm(UserCreationForm):
             "telefono": "Teléfono",
             "rol": "Rol",
         }
+        help_texts = {
+            "username": "",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].help_text = ''
 
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono')

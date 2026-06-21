@@ -368,13 +368,16 @@ def create_routine(request):
         form = RoutineForm(request.POST)
         if form.is_valid():
             routine = form.save(commit=False)
-            routine.usuario = request.user  # el staff crea la rutina
             routine.save()
             messages.success(request, "Rutina creada exitosamente")
-            return redirect('staff')
+            return redirect('staff_dashboard')
     else:
         form = RoutineForm()
-    return render(request, 'create_routine.html', {'form': form})
+    return render(request, 'form_template.html', {
+        'title': 'Crear Nueva Rutina',
+        'form': form,
+        'cancel_url': reverse('staff_dashboard'),
+    })
 
 @login_required
 def assign_routine(request):
@@ -391,10 +394,14 @@ def assign_routine(request):
             rutina.usuario = cliente
             rutina.save()
             messages.success(request, "Rutina asignada al cliente")
-            return redirect('staff')
+            return redirect('staff_dashboard')
     else:
         form = AssignRoutineForm()
-    return render(request, 'assign_routine.html', {'form': form})
+    return render(request, 'form_template.html', {
+        'title': 'Asignar Rutina a Cliente',
+        'form': form,
+        'cancel_url': reverse('staff_dashboard'),
+    })
 
 
 @login_required
@@ -633,6 +640,7 @@ def admin_dashboard(request):
     total_sesiones = Session.objects.count()
     
     entrenadores_lista = User.objects.filter(rol='staff').prefetch_related('clientes_asignados')
+    clientes_lista = User.objects.filter(rol='customer').select_related('entrenador_asignado')
 
     context = {
         'user': request.user,
@@ -641,6 +649,7 @@ def admin_dashboard(request):
         'total_rutinas': total_rutinas,
         'total_sesiones': total_sesiones,
         'entrenadores_lista': entrenadores_lista,
+        'clientes_lista': clientes_lista,
     }
     return render(request, 'admin_dashboard.html', context)
 

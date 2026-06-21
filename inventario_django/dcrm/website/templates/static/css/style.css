@@ -1,7 +1,7 @@
 :root {
-  --primary-color:  #4f46e5;
-  --primary-dark:   #3730a3;
-  --primary-light:  #eef2ff;
+  --primary-color:  #DDA0DD;
+  --primary-dark:   #C585C5;
+  --primary-light:  #F8E8F8;
   --accent:         #06b6d4;
   --success:        #10b981;
   --danger:         #ef4444;
@@ -11,8 +11,8 @@
   --surface:        #f8fafc;
   --white:          #ffffff;
   --radius:         14px;
-  --shadow-sm:      0 2px 8px rgba(79,70,229,.08);
-  --shadow-md:      0 8px 32px rgba(79,70,229,.13);
+  --shadow-sm:      0 2px 8px rgba(221, 160, 221, 0.2);
+  --shadow-md:      0 8px 32px rgba(221, 160, 221, 0.3);
 }
 
 /* ── BASE ── */

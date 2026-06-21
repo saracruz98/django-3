@@ -43,6 +43,7 @@ class Routine(models.Model):
     """
 
     nombre = models.CharField(max_length=100, help_text="Nombre descriptivo de la rutina")
+    descripcion = models.TextField(blank=True, help_text="Descripción detallada de la rutina")
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

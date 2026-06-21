@@ -22,10 +22,21 @@ class ProgressForm(forms.ModelForm):
 class RoutineForm(forms.ModelForm):
     class Meta:
         model = Routine
-        fields = ['nombre']
+        fields = ['nombre', 'descripcion', 'usuario']
         widgets = {
-            'nombre': forms.TextInput(attrs={'placeholder': 'Nombre de la rutina'}),
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ej. Fuerza Superior, Piernas, etc.'}),
+            'descripcion': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Ej. Rutina enfocada en hipertrofia y fuerza...'}),
         }
+        labels = {
+            'nombre': 'Nombre de la Rutina',
+            'descripcion': 'Descripción detallada',
+            'usuario': 'Asignar a Cliente',
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter usuario to only show customers
+        self.fields['usuario'].queryset = get_user_model().objects.filter(rol='customer')
 
 class AssignRoutineForm(forms.Form):
     rutina = forms.ModelChoiceField(queryset=Routine.objects.all(), label='Rutina')
