@@ -6,12 +6,15 @@ from django.conf import settings
 # ---------------------------------------------------------------------------
 
 class Exercise(models.Model):
-    """Ejercicio físico que puede ser incluido en una rutina.
-
-    - ``nombre``: nombre descriptivo del ejercicio.
-    - ``descripcion``: texto libre (opcional).
-    - ``duracion_min``: duración estimada en minutos.
-    - ``dificultad``: nivel de esfuerzo (baja, media, alta).
+    """
+    Modelo de Dominio: Ejercicio Físico.
+    Representa una entidad independiente que puede ser asignada a múltiples rutinas (Relación N:M a través de RoutineExercise).
+    
+    Campos Principales:
+    - ``nombre``: Nombre descriptivo del ejercicio (Único).
+    - ``descripcion``: Texto libre instructivo (Opcional).
+    - ``duracion_min``: Duración base estimada en minutos.
+    - ``dificultad``: Nivel de exigencia (baja, media, alta).
     """
 
     DIFICULTAD_CHOICES = [
@@ -34,12 +37,18 @@ class Exercise(models.Model):
 
 
 class Routine(models.Model):
-    """Rutina de entrenamiento asignada a un usuario.
-
-    - ``nombre``: nombre de la rutina.
-    - ``usuario``: referencia al ``CustomUser`` (modelo de la app ``accounts``).
-    - ``fecha_creacion``: timestamp automático.
-    - ``activo``: bandera que permite habilitar/deshabilitar la rutina.
+    """
+    Modelo de Dominio: Rutina de Entrenamiento.
+    Actúa como una entidad agrupadora que vincula a un Usuario con múltiples Ejercicios.
+    
+    Relaciones Estructurales:
+    - FK (ForeignKey) hacia CustomUser: Relación 1:N donde un usuario puede tener muchas rutinas.
+    
+    Campos Principales:
+    - ``nombre``: Nombre de la rutina.
+    - ``usuario``: Referencia directa a la cuenta del usuario/cliente.
+    - ``fecha_creacion``: Timestamp automático para auditoría.
+    - ``activo``: Bandera lógica de activación (Soft Delete o Archivo).
     """
 
     nombre = models.CharField(max_length=100, help_text="Nombre descriptivo de la rutina")
@@ -61,10 +70,15 @@ class Routine(models.Model):
 
 
 class RoutineExercise(models.Model):
-    """Relación N‑N entre ``Routine`` y ``Exercise`` con orden y repeticiones.
-
-    - ``orden``: posición dentro de la rutina (único por rutina).
-    - ``repeticiones``: número de repeticiones o series.
+    """
+    Modelo Intermedio (Tabla de Unión) para la relación N:M entre Routine y Exercise.
+    Permite agregar atributos específicos a la relación, como el orden y número de series.
+    
+    Estructura de Base de Datos:
+    - ``rutina``: FK hacia Routine (Cascade delete).
+    - ``ejercicio``: FK hacia Exercise.
+    - ``orden``: Posición secuencial del ejercicio dentro de la rutina específica.
+    - ``repeticiones``: Cantidad de series/repeticiones indicadas por el entrenador.
     """
 
     rutina = models.ForeignKey(

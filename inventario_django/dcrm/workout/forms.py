@@ -1,8 +1,15 @@
+"""
+Módulo de Formularios (Workout)
+Implementación intensiva del Principio DRY (Don't Repeat Yourself) mediante Patrón Factory (ModelForm).
+Delega la validación y creación de campos de interfaz a la configuración de los Modelos de la BD.
+"""
+
 from django import forms
 from django.contrib.auth import get_user_model
 from workout.models import Observation, Progress, Routine, Exercise, Session
 
 class ObservationForm(forms.ModelForm):
+    """Formulario para que un Staff agregue observaciones a una sesión."""
     class Meta:
         model = Observation
         fields = ['session', 'texto']
@@ -11,6 +18,7 @@ class ObservationForm(forms.ModelForm):
         }
 
 class ProgressForm(forms.ModelForm):
+    """Formulario para registro de progreso de clientes. Hereda validaciones numéricas del modelo."""
     class Meta:
         model = Progress
         fields = ['peso', 'altura']
@@ -20,6 +28,10 @@ class ProgressForm(forms.ModelForm):
         }
 
 class RoutineForm(forms.ModelForm):
+    """
+    Formulario de creación de Rutinas.
+    Se inyecta la restricción de que el queryset de 'usuario' solo muestre perfiles con rol 'customer'.
+    """
     class Meta:
         model = Routine
         fields = ['nombre', 'descripcion', 'usuario']
@@ -35,15 +47,16 @@ class RoutineForm(forms.ModelForm):
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Filter usuario to only show customers
+        # Filtrado de base de datos para asignar rutinas únicamente a Clientes
         self.fields['usuario'].queryset = get_user_model().objects.filter(rol='customer')
 
 class AssignRoutineForm(forms.Form):
+    """Formulario estándar (No ModelForm) para asignar dinámicamente rutinas existentes a clientes."""
     rutina = forms.ModelChoiceField(queryset=Routine.objects.all(), label='Rutina')
     cliente = forms.ModelChoiceField(queryset=get_user_model().objects.filter(rol='customer'), label='Cliente')
 
-# New forms
 class ExerciseForm(forms.ModelForm):
+    """Formulario CRUD para Ejercicios."""
     class Meta:
         model = Exercise
         fields = ['nombre', 'descripcion', 'duracion_min', 'dificultad']
@@ -55,6 +68,7 @@ class ExerciseForm(forms.ModelForm):
         }
 
 class SessionForm(forms.ModelForm):
+    """Formulario CRUD para agendamiento de Sesiones."""
     class Meta:
         model = Session
         fields = ['entrenador', 'cliente', 'rutina', 'fecha_hora', 'estado']

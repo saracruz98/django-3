@@ -4,11 +4,17 @@ from django.contrib.auth import get_user_model
 
 
 class SignUpForm(UserCreationForm):
-    """Formulario de registro de usuarios usando el modelo CustomUser."""
+    """
+    Formulario de registro de usuarios utilizando el Patrón Factory (ModelForm) y el Principio DRY.
+    Delega la creación de campos HTML e inicializa validaciones según la estructura del CustomUser.
+    
+    Aplica la Capa 3 de Seguridad: Limpieza y validación en el Backend antes de guardar en la DB.
+    """
 
     class Meta:
         model = get_user_model()
         fields = ("username", "email", "password1", "password2", "telefono", "rol")
+        # Diccionario de widgets: Inyecta clases de Bootstrap y Expresiones Regulares en HTML (Capa 1).
         widgets = {
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "username": forms.TextInput(attrs={"class": "form-control", "pattern": "^[a-zA-Z0-9_]+$", "title": "Solo letras, números y guiones bajos (_)."}),
@@ -27,9 +33,14 @@ class SignUpForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Se elimina el texto de ayuda predeterminado de Django para un diseño más limpio
         self.fields['username'].help_text = ''
 
     def clean_telefono(self):
+        """
+        Validación personalizada (Backend - Capa 3) para el campo teléfono usando Regex.
+        Asegura que no se salten la validación del frontend inyectando datos.
+        """
         telefono = self.cleaned_data.get('telefono')
         import re
         if not re.match(r'^\+?1?\d{9,15}$', telefono):
@@ -37,6 +48,10 @@ class SignUpForm(UserCreationForm):
         return telefono
         
     def clean_username(self):
+        """
+        Validación de seguridad con Expresiones Regulares (Regex) para el nombre de usuario.
+        Rechaza caracteres extraños como <, >, ' y " para evitar inyecciones de código.
+        """
         username = self.cleaned_data.get('username')
         import re
         if not re.match(r'^[a-zA-Z0-9_]+$', username):

@@ -1,7 +1,10 @@
 """
-Módulo de vistas para la aplicación website.
-Contiene la lógica para la página principal, el registro de usuarios,
-la autenticación (inicio y cierre de sesión) y el dashboard del cliente.
+Módulo de Vistas (Capa View del patrón MVT).
+Contiene la lógica central (controladores) de la aplicación, incluyendo el sistema 
+de autenticación, enrutamiento condicional y Dashboards.
+
+Implementa fuertemente el Patrón Estructural DECORATOR (@login_required) 
+para la Capa 2 de Seguridad (Control de Acceso).
 """
 
 from django.shortcuts import render, redirect
@@ -112,9 +115,15 @@ def register_user(request):
 
 @login_required
 def client_dashboard(request):
-    """Vista del cliente (rol 'customer').
-    Solo los usuarios con rol 'customer' pueden acceder.
-    Dashboard premium con estadísticas, gráficas, logros y más.
+    """
+    Vista del Panel de Cliente (Patrón MVT - Capa View).
+    
+    PATRÓN DECORATOR: 
+    El decorador @login_required actúa envolviendo la vista. Si el usuario no 
+    está autenticado, intercepta la petición y lo redirige al login sin ejecutar el código interior.
+    
+    CAPA 2 DE SEGURIDAD (Autorización por Rol):
+    Se valida estrictamente que `request.user.rol == 'customer'`.
     """
     if getattr(request.user, 'rol', None) != 'customer':
         messages.error(request, "Acceso no autorizado")
@@ -313,8 +322,10 @@ def client_dashboard(request):
 
 @login_required
 def staff_dashboard(request):
-    """Vista del personal (rol 'staff').
-    Solo puede administrar clientes asignados.
+    """
+    Vista del Panel de Personal / Entrenador (Patrón MVT - Capa View).
+    Usa Decorador para requerir login y validación interna para restringir el acceso
+    exclusivamente a usuarios con el rol 'staff'.
     """
     if getattr(request.user, 'rol', None) != 'staff':
         messages.error(request, "Acceso no autorizado")
