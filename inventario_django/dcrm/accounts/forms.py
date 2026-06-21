@@ -11,8 +11,8 @@ class SignUpForm(UserCreationForm):
         fields = ("username", "email", "password1", "password2", "telefono", "rol")
         widgets = {
             "email": forms.EmailInput(attrs={"class": "form-control"}),
-            "username": forms.TextInput(attrs={"class": "form-control"}),
-            "telefono": forms.TextInput(attrs={"class": "form-control"}),
+            "username": forms.TextInput(attrs={"class": "form-control", "pattern": "^[a-zA-Z0-9_]+$", "title": "Solo letras, números y guiones bajos (_)."}),
+            "telefono": forms.TextInput(attrs={"class": "form-control", "pattern": "^\+?1?\d{9,15}$", "title": "Formato válido: +999999999 (9 a 15 dígitos)."}),
             "rol": forms.Select(attrs={"class": "form-control"}),
         }
         labels = {
@@ -31,8 +31,14 @@ class SignUpForm(UserCreationForm):
 
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono')
-        if not telefono.isdigit():
-            raise forms.ValidationError('El teléfono debe contener solo números.')
-        if len(telefono) < 7:
-            raise forms.ValidationError('El teléfono es demasiado corto.')
+        import re
+        if not re.match(r'^\+?1?\d{9,15}$', telefono):
+            raise forms.ValidationError('El teléfono debe tener un formato válido (ej. +999999999) y entre 9 y 15 dígitos.')
         return telefono
+        
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        import re
+        if not re.match(r'^[a-zA-Z0-9_]+$', username):
+            raise forms.ValidationError('El usuario solo puede contener letras, números y guiones bajos (_). No se permiten caracteres especiales ni espacios.')
+        return username

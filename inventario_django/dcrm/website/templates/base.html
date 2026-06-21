@@ -11,10 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+    <!-- HTMX for Single Page Application behavior -->
+    <script src="{% static 'js/htmx.min.js' %}"></script>
     <title>Inventario DCRM</title>
 </head>
 
-<body>
+<body hx-boost="true">
 
     <!-- ═══ NOTIFICATION CONTAINER (Floating Toasts) ═══ -->
     <div class="notification-container" id="toastContainer">
