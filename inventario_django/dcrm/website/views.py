@@ -15,8 +15,8 @@ from django.urls import reverse
 from accounts.forms import SignUpForm  # Formulario personalizado para el registro
 
 # Importar modelos de workout para usar en dashboards
-from workout.models import Routine, Exercise, Session, Observation, Progress, Recommendation
-from workout.forms import ObservationForm, ProgressForm, RoutineForm, AssignRoutineForm, ExerciseForm, SessionForm
+from workout.models import Routine, Exercise, Session, Observation, Progress, Recommendation, ClientExerciseLog
+from workout.forms import ObservationForm, ProgressForm, RoutineForm, AssignRoutineForm, ExerciseForm, SessionForm, ClientExerciseLogForm
 
 def home(request):
     """
@@ -112,7 +112,7 @@ def register_user(request):
         # Si no es POST, mostrar un formulario vacío
         form = SignUpForm()
         return render(request, 'register.html', {'form': form})
-
+"""uno"""
 @login_required
 def client_dashboard(request):
     """
@@ -138,6 +138,9 @@ def client_dashboard(request):
     # ── Rutinas del cliente ──
     mis_rutinas = Routine.objects.filter(usuario=request.user, activo=True)
     ejercicios = Exercise.objects.all()
+    
+    # ── Ejercicios registrados por el cliente ──
+    client_exercises_log = ClientExerciseLog.objects.filter(cliente=request.user)
 
     # ── Progreso físico más reciente ──
     progreso_fisico = Progress.objects.filter(cliente=request.user).order_by('-fecha').first()
@@ -292,6 +295,7 @@ def client_dashboard(request):
         'user': request.user,
         'rutinas': mis_rutinas,
         'ejercicios': ejercicios,
+        'client_exercises_log': client_exercises_log,
         'progreso_fisico': progreso_fisico,
         'historial_entrenamientos': historial_entrenamientos,
         'entrenos_mes': entrenos_mes,
@@ -319,7 +323,7 @@ def client_dashboard(request):
     }
     return render(request, 'client_dashboard.html', context)
 
-
+"""dos"""
 @login_required
 def staff_dashboard(request):
     """
@@ -637,6 +641,59 @@ def add_progress(request):
     else:
         form = ProgressForm()
     return render(request, 'add_progress.html', {'form': form})
+
+@login_required
+def add_client_exercise(request):
+    """Permite al cliente registrar un ejercicio realizado."""
+    if getattr(request.user, 'rol', None) != 'customer':
+        messages.error(request, "Acceso no autorizado")
+        return redirect('home')
+    if request.method == 'POST':
+        form = ClientExerciseLogForm(request.POST)
+        if form.is_valid():
+            log = form.save(commit=False)
+            log.cliente = request.user
+            log.save()
+            messages.success(request, "Ejercicio registrado con éxito")
+            return redirect('client')
+    else:
+        form = ClientExerciseLogForm()
+    return render(request, 'form_template.html', {
+        'title': 'Registrar Ejercicio Realizado',
+        'form': form,
+        'cancel_url': reverse('client'),
+    })
+
+@login_required
+def edit_client_exercise(request, pk):
+    if getattr(request.user, 'rol', None) != 'customer':
+        messages.error(request, "Acceso no autorizado")
+        return redirect('home')
+    log = ClientExerciseLog.objects.get(pk=pk, cliente=request.user)
+    if request.method == 'POST':
+        form = ClientExerciseLogForm(request.POST, instance=log)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Registro actualizado")
+            return redirect('client')
+    else:
+        form = ClientExerciseLogForm(instance=log)
+    return render(request, 'form_template.html', {
+        'title': 'Editar Registro de Ejercicio',
+        'form': form,
+        'cancel_url': reverse('client'),
+    })
+
+@login_required
+def delete_client_exercise(request, pk):
+    if getattr(request.user, 'rol', None) != 'customer':
+        messages.error(request, "Acceso no autorizado")
+        return redirect('home')
+    log = ClientExerciseLog.objects.get(pk=pk, cliente=request.user)
+    log.delete()
+    messages.success(request, "Registro eliminado")
+    return redirect('client')
+
 @login_required
 def admin_dashboard(request):
     """Vista de administrador (superuser o rol admin)."""

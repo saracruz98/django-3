@@ -14,13 +14,9 @@ from pathlib import Path
 import os 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-nk=jc81kpiwfy!y5)o)a9rioqy#6uo(wzwvz!3z#d5cn!djd-w'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -71,8 +67,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'dcrm.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+
 
 DATABASES = {
     "default": {
@@ -82,15 +78,14 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+
+
 
 AUTH_PASSWORD_VALIDATORS = []
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
+
 
 LANGUAGE_CODE = 'es'
 
@@ -101,8 +96,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
+
 
 STATIC_URL = 'static/'
 
@@ -110,7 +104,5 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'website', 'templates', 'static'),
 ]
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 AUTH_USER_MODEL = 'accounts.CustomUser'

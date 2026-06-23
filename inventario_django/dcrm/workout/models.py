@@ -1,21 +1,9 @@
 from django.db import models
 from django.conf import settings
 
-# ---------------------------------------------------------------------------
-# Modelos de la aplicación "workout"
-# ---------------------------------------------------------------------------
+"""uno"""
 
-class Exercise(models.Model):
-    """
-    Modelo de Dominio: Ejercicio Físico.
-    Representa una entidad independiente que puede ser asignada a múltiples rutinas (Relación N:M a través de RoutineExercise).
-    
-    Campos Principales:
-    - ``nombre``: Nombre descriptivo del ejercicio (Único).
-    - ``descripcion``: Texto libre instructivo (Opcional).
-    - ``duracion_min``: Duración base estimada en minutos.
-    - ``dificultad``: Nivel de exigencia (baja, media, alta).
-    """
+class Exercise(models.Model): 
 
     DIFICULTAD_CHOICES = [
         ("baja", "Baja"),
@@ -35,7 +23,7 @@ class Exercise(models.Model):
     def __str__(self):
         return self.nombre
 
-
+"""dos"""
 class Routine(models.Model):
     """
     Modelo de Dominio: Rutina de Entrenamiento.
@@ -203,3 +191,22 @@ class Recommendation(models.Model):
 
     def __str__(self):
         return f"Recomendación {self.id} para {self.cliente.username}"
+
+class ClientExerciseLog(models.Model):
+    """Registro personal de ejercicios realizados por el cliente."""
+    cliente = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        limit_choices_to={"rol": "customer"},
+        related_name="ejercicios_registrados",
+    )
+    ejercicio = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    fecha = models.DateField(help_text="Fecha en que se realizó el ejercicio")
+    repeticiones = models.PositiveIntegerField(default=1, help_text="Cantidad de repeticiones o series")
+    peso = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Peso utilizado (kg) opcional")
+    
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"{self.cliente.username} - {self.ejercicio.nombre} ({self.fecha})"

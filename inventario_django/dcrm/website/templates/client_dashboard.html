@@ -16,6 +16,47 @@
     <!-- COLUMNA IZQUIERDA (Principal) -->
     <div class="col-lg-8">
         
+        <!-- MIS EJERCICIOS REALIZADOS (Personal Log) -->
+        <div class="card premium-panel mb-4">
+            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">📝 Mis Ejercicios Realizados</h5>
+                <a href="{% url 'add_client_exercise' %}" class="btn btn-sm btn-primary">+ Registrar Ejercicio</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Ejercicio</th>
+                                <th>Repeticiones/Series</th>
+                                <th>Peso (kg)</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in client_exercises_log %}
+                            <tr>
+                                <td>{{ log.fecha|date:"d/m/Y" }}</td>
+                                <td class="fw-bold text-primary">{{ log.ejercicio.nombre }}</td>
+                                <td>{{ log.repeticiones }}</td>
+                                <td>{{ log.peso|default:"-" }}</td>
+                                <td class="text-end">
+                                    <a href="{% url 'edit_client_exercise' log.id %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a href="{% url 'delete_client_exercise' log.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar registro?');">Eliminar</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted p-4">No has registrado ejercicios independientes aún.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- ESTADÍSTICAS RÁPIDAS -->
         <div class="row g-3 mb-4">
             <div class="col-sm-6 col-md-3">
@@ -194,6 +235,8 @@
                 </ul>
             </div>
         </div>
+
+
 
     </div>
     

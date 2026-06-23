@@ -49,6 +49,10 @@ urlpatterns = [
     path('panel-admin/manage_plans/', views.admin_manage_plans, name='admin_manage_plans'),
     path('observation/create/', views.create_observation, name='create_observation'),
     path('observation/create/<int:session_id>/', views.create_observation, name='create_observation'),
+    # CRUD for ClientExerciseLog (customer)
+    path('client_exercise/add/', views.add_client_exercise, name='add_client_exercise'),
+    path('client_exercise/<int:pk>/edit/', views.edit_client_exercise, name='edit_client_exercise'),
+    path('client_exercise/<int:pk>/delete/', views.delete_client_exercise, name='delete_client_exercise'),
     path('history/', views.history, name='history'),
 
 ]

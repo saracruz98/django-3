@@ -6,7 +6,7 @@ Delega la validación y creación de campos de interfaz a la configuración de l
 
 from django import forms
 from django.contrib.auth import get_user_model
-from workout.models import Observation, Progress, Routine, Exercise, Session
+from workout.models import Observation, Progress, Routine, Exercise, Session, ClientExerciseLog
 
 class ObservationForm(forms.ModelForm):
     """Formulario para que un Staff agregue observaciones a una sesión."""
@@ -78,4 +78,16 @@ class SessionForm(forms.ModelForm):
             'rutina': forms.Select(),
             'fecha_hora': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'estado': forms.Select(),
+        }
+
+class ClientExerciseLogForm(forms.ModelForm):
+    """Formulario para registro personal de ejercicios por parte del cliente."""
+    class Meta:
+        model = ClientExerciseLog
+        fields = ['ejercicio', 'fecha', 'repeticiones', 'peso']
+        widgets = {
+            'ejercicio': forms.Select(attrs={'class': 'form-select'}),
+            'fecha': forms.DateInput(attrs={'type': 'date'}),
+            'repeticiones': forms.NumberInput(attrs={'min': 1}),
+            'peso': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'Opcional (kg)'}),
         }
